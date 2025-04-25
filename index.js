@@ -15,7 +15,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 // Serve index.html file
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  res.sendFile(path.join(__dirname,  'index.html'));
 });
 
 // Array untuk menyimpan data BMI (dalam aplikasi produksi, gunakan database)
