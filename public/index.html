@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rekomendasi Calisthenics</title>
+  <style>
+    .form-control {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+    .result-container {
+      margin-top: 20px;
+      padding: 15px;
+      background-color: #f0f7ff;
+      border-radius: 8px;
+      border-left: 4px solid #2196F3;
+    }
+    .bmi-value {
+      font-size: 24px;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    .bmi-category {
+      font-size: 18px;
+      margin-bottom: 10px;
+    }
+    .bmi-recommendation {
+      font-size: 16px;
+      line-height: 1.5;
+    }
+    .category-underweight { color: #2196F3; }
+    .category-normal { color: #4CAF50; }
+    .category-overweight { color: #FF9800; }
+    .category-obese { color: #F44336; }
+
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #f5f5f5;
+    }
+    h1, h2 {
+      text-align: center;
+      color: #333;
+    }
+    .container {
+      background-color: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+    select {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+    button {
+      background-color: #4CAF50;
+      color: white;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    #recommendations, #selectedWorkouts {
+      margin-top: 20px;
+    }
+    .workout-card {
+      background-color: #f9f9f9;
+      border-left: 4px solid #4CAF50;
+      padding: 15px;
+      margin-bottom: 10px;
+      border-radius: 4px;
+      position: relative;
+    }
+    .workout-name {
+      font-weight: bold;
+      font-size: 18px;
+      margin-bottom: 5px;
+      padding-right: 60px;
+    }
+    .workout-detail {
+      margin-bottom: 3px;
+      font-size: 14px;
+    }
+    .difficulty-easy { color: #4CAF50; }
+    .difficulty-medium { color: #FF9800; }
+    .difficulty-hard { color: #F44336; }
+    .workout-actions {
+      position: absolute;
+      right: 15px;
+      top: 15px;
+    }
+    .action-btn {
+      display: inline-block;
+      width: 24px;
+      height: 24px;
+      line-height: 22px;
+      text-align: center;
+      border-radius: 50%;
+      font-weight: bold;
+      font-size: 18px;
+      cursor: pointer;
+      margin-left: 5px;
+    }
+    .add-btn {
+      background-color: #4CAF50;
+      color: white;
+    }
+    .remove-btn {
+      background-color: #F44336;
+      color: white;
+    }
+    .selected-workout {
+      background-color: #e3f2fd;
+      border-left: 4px solid #2196F3;
+    }
+    #myProgramSection {
+      display: none;
+    }
+    .empty-message {
+      text-align: center;
+      font-style: italic;
+      color: #757575;
+      padding: 15px;
+    }
+    .view-program-btn {
+      background-color: #2196F3;
+      margin-top: 20px;
+      display: block;
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="container" id="bmiContainer">
+      <h2>Slide ke 1 informasi buat kesehatan</h2>
+      <h2> slide ke 2 Kalkulator BMI</h2>
+      <div class="form-group">
+        <label for="age">Umur:</label>
+        <input type="number" id="age" min="12" max="100" class="form-control" placeholder="Umur (12-100 tahun)">
+      </div>
+      
+      <div class="form-group">
+        <label for="height">Tinggi Badan (cm):</label>
+        <input type="number" id="height" min="100" max="250" class="form-control" placeholder="Tinggi badan dalam cm">
+      </div>
+      
+      <div class="form-group">
+        <label for="weight">Berat Badan (kg):</label>
+        <input type="number" id="weight" min="30" max="300" class="form-control" placeholder="Berat badan dalam kg">
+      </div>
+      
+      <button id="calculateBmiBtn" class="btn">Hitung BMI</button>
+      
+      <div id="bmiResult" style="display: none;" class="result-container">
+        <h3>Hasil BMI Anda</h3>
+        <div class="bmi-value"></div>
+        <div class="bmi-category"></div>
+        <div class="bmi-recommendation"></div>
+      </div>
+    </div>
+    <h1>cari Gerakan Rekomendasi   slide ke 3</h1>
+    
+    <div class="form-group">
+      <label for="workoutType">Jenis olahraga:</label>
+      <select id="workoutType">
+        <option value="semua">Semua</option>
+        <option value="strength">Strength</option>
+        <option value="endurance">Endurance</option>
+      </select>
+    </div>
+    
+    <div class="form-group">
+      <label for="difficultyLevel">Tingkat Kesulitan:</label>
+      <select id="difficultyLevel">
+        <option value="all">Semua Tingkat</option>
+        <option value="beginner">Pemula (Easy)</option>
+        <option value="intermediate">Menengah (Medium)</option>
+        <option value="advanced">Lanjutan (Hard)</option>
+      </select>
+    </div>
+    
+    <button id="recommendBtn">cari gerakan</button>
+   
+    <div id="recommendations"></div>
+    
+    <button id="viewProgramBtn" class="view-program-btn" style="display: none;">Lihat Program yg di pilih </button>
+  </div>
+  
+  <div id="myProgramSection" class="container">
+    <h2>Program Latihan Saya slide ke 4 slide ke 5 testimoni ?</h2>
+    <div id="selectedWorkouts">
+      <p class="empty-message">Belum ada gerakan yang dipilih. Tambahkan gerakan dengan klik tombol (+).</p>
+    </div>
+    <button id="backToRecommendBtn">Kembali ke Rekomendasi</button>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const recommendBtn = document.getElementById('recommendBtn');
+      const workoutTypeSelect = document.getElementById('workoutType');
+      const difficultyLevelSelect = document.getElementById('difficultyLevel');
+      const recommendationsDiv = document.getElementById('recommendations');
+      const selectedWorkoutsDiv = document.getElementById('selectedWorkouts');
+      const viewProgramBtn = document.getElementById('viewProgramBtn');
+      const myProgramSection = document.getElementById('myProgramSection');
+      const backToRecommendBtn = document.getElementById('backToRecommendBtn');
+      
+      // Function to add options to select elements
+      function addOption(selectElement, value, text) {
+        const option = document.createElement('option');
+        option.value = value;
+        option.textContent = text;
+        selectElement.appendChild(option);
+      }
+      
+      // Array to store selected workouts
+      let selectedWorkouts = [];
+      
+      // Function to update selected workouts view
+      function updateSelectedWorkoutsView() {
+        if (selectedWorkouts.length === 0) {
+          selectedWorkoutsDiv.innerHTML = '<p class="empty-message">Belum ada gerakan yang dipilih. Tambahkan gerakan dengan klik tombol (+).</p>';
+          return;
+        }
+        
+        let html = '';
+        selectedWorkouts.forEach((workout, index) => {
+          let difficultyClass = '';
+          if (workout.kesulitan === 'Easy') difficultyClass = 'difficulty-easy';
+          else if (workout.kesulitan === 'Medium') difficultyClass = 'difficulty-medium';
+          else if (workout.kesulitan === 'Hard' || workout.kesulitan === 'Very Hard') difficultyClass = 'difficulty-hard';
+          
+          html += `
+            <div class="workout-card selected-workout">
+              <div class="workout-name">${workout.name}</div>
+              <div class="workout-detail"><strong>Jenis:</strong> ${workout.jenis}</div>
+              <div class="workout-detail"><strong>Subkategori:</strong> ${workout.subkategori}</div>
+              <div class="workout-detail"><strong>Target:</strong> ${workout.target}</div>
+              <div class="workout-detail"><strong>Kesulitan:</strong> <span class="${difficultyClass}">${workout.kesulitan}</span></div>
+              <div class="workout-detail"><strong>Deskripsi:</strong> ${workout.description}</div>
+              <div class="workout-actions">
+                <span class="action-btn remove-btn" data-index="${index}">-</span>
+              </div>
+            </div>
+          `;
+        });
+        
+        selectedWorkoutsDiv.innerHTML = html;
+        
+        // Add event listeners to remove buttons
+        document.querySelectorAll('.selected-workout .remove-btn').forEach(btn => {
+          btn.addEventListener('click', function() {
+            const index = parseInt(this.getAttribute('data-index'));
+            selectedWorkouts.splice(index, 1);
+            updateSelectedWorkoutsView();
+            updateViewProgramButton();
+          });
+        });
+      }
+      
+      // Function to update "View Program" button
+      function updateViewProgramButton() {
+        if (selectedWorkouts.length > 0) {
+          viewProgramBtn.style.display = 'block';
+        } else {
+          viewProgramBtn.style.display = 'none';
+        }
+      }
+      
+      // Event listener for recommendation button
+      recommendBtn.addEventListener('click', async function() {
+        const workoutType = workoutTypeSelect.value;
+        const difficultyLevel = difficultyLevelSelect.value;
+        
+        try {
+          const response = await fetch('/recommend', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ workoutType, difficultyLevel }),
+          });
+          
+          const data = await response.json();
+          
+          if (data.error) {
+            recommendationsDiv.innerHTML = `<p>Error: ${data.error}</p>`;
+            return;
+          }
+          
+          if (!data.recommendations || data.recommendations.length === 0) {
+            recommendationsDiv.innerHTML = '<p>Tidak ada rekomendasi yang ditemukan.</p>';
+            return;
+          }
+          
+          // Display recommendations
+          let html = '<h2>List Gerakan:</h2>';
+          
+          data.recommendations.forEach(workout => {
+            let difficultyClass = '';
+            if (workout.kesulitan === 'Easy') difficultyClass = 'difficulty-easy';
+            else if (workout.kesulitan === 'Medium') difficultyClass = 'difficulty-medium';
+            else if (workout.kesulitan === 'Hard' || workout.kesulitan === 'Very Hard') difficultyClass = 'difficulty-hard';
+            
+            // Check if workout is already selected
+            const isSelected = selectedWorkouts.some(selected => selected.name === workout.name);
+            
+            html += `
+              <div class="workout-card" data-name="${workout.name}">
+                <div class="workout-name">${workout.name}</div>
+                <div class="workout-detail"><strong>Jenis:</strong> ${workout.jenis}</div>
+                <div class="workout-detail"><strong>Subkategori:</strong> ${workout.subkategori}</div>
+                <div class="workout-detail"><strong>Target:</strong> ${workout.target}</div>
+                <div class="workout-detail"><strong>Kesulitan:</strong> <span class="${difficultyClass}">${workout.kesulitan}</span></div>
+                <div class="workout-detail"><strong>Deskripsi:</strong> ${workout.description}</div>
+                <div class="workout-actions">
+                  ${isSelected ? 
+                    '<span class="action-btn remove-btn" title="Hapus dari program">-</span>' : 
+                    '<span class="action-btn add-btn" title="Tambahkan ke program">+</span>'}
+                </div>
+              </div>
+            `;
+          });
+          
+          recommendationsDiv.innerHTML = html;
+          
+          // Add event listeners to add/remove buttons
+          document.querySelectorAll('.add-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+              const workoutCard = this.closest('.workout-card');
+              const workoutName = workoutCard.getAttribute('data-name');
+              const workout = data.recommendations.find(w => w.name === workoutName);
+              
+              if (workout) {
+                selectedWorkouts.push(workout);
+                updateSelectedWorkoutsView();
+                updateViewProgramButton();
+                
+                // Change + button to - button
+                this.className = 'action-btn remove-btn';
+                this.textContent = '-';
+                this.title = 'Hapus dari program';
+                
+                // Change event listener
+                this.removeEventListener('click', arguments.callee);
+                this.addEventListener('click', function() {
+                  const index = selectedWorkouts.findIndex(w => w.name === workoutName);
+                  if (index !== -1) {
+                    selectedWorkouts.splice(index, 1);
+                    updateSelectedWorkoutsView();
+                    updateViewProgramButton();
+                    
+                    // Change - button back to + button
+                    this.className = 'action-btn add-btn';
+                    this.textContent = '+';
+                    this.title = 'Tambahkan ke program';
+                    
+                    // Change back event listener
+                    this.removeEventListener('click', arguments.callee);
+                    workoutCard.querySelector('.workout-actions').innerHTML = '<span class="action-btn add-btn" title="Tambahkan ke program">+</span>';
+                    
+                    // Add back add event listener
+                    workoutCard.querySelector('.add-btn').addEventListener('click', arguments.callee.caller);
+                  }
+                });
+              }
+            });
+          });
+          
+          document.querySelectorAll('.remove-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+              const workoutCard = this.closest('.workout-card');
+              const workoutName = workoutCard.getAttribute('data-name');
+              const index = selectedWorkouts.findIndex(w => w.name === workoutName);
+              
+              if (index !== -1) {
+                selectedWorkouts.splice(index, 1);
+                updateSelectedWorkoutsView();
+                updateViewProgramButton();
+                
+                // Change - button to + button
+                this.className = 'action-btn add-btn';
+                this.textContent = '+';
+                this.title = 'Tambahkan ke program';
+                
+                // Change event listener
+                this.removeEventListener('click', arguments.callee);
+                this.addEventListener('click', function() {
+                  const workout = data.recommendations.find(w => w.name === workoutName);
+                  
+                  if (workout) {
+                    selectedWorkouts.push(workout);
+                    updateSelectedWorkoutsView();
+                    updateViewProgramButton();
+                    
+                    // Change + button to - button
+                    this.className = 'action-btn remove-btn';
+                    this.textContent = '-';
+                    this.title = 'Hapus dari program';
+                    
+                    // Change back event listener
+                    this.removeEventListener('click', arguments.callee);
+                    workoutCard.querySelector('.workout-actions').innerHTML = '<span class="action-btn remove-btn" title="Hapus dari program">-</span>';
+                    
+                    // Add back remove event listener
+                    workoutCard.querySelector('.remove-btn').addEventListener('click', arguments.callee.caller);
+                  }
+                });
+              }
+            });
+          });
+          
+        } catch (error) {
+          console.error('Error fetching recommendations:', error);
+          recommendationsDiv.innerHTML = '<p>Terjadi kesalahan saat mengambil rekomendasi.</p>';
+        }
+      });
+      
+      // Event listener for "View Program" button
+      viewProgramBtn.addEventListener('click', function() {
+        document.querySelector('.container').style.display = 'none';
+        myProgramSection.style.display = 'block';
+        updateSelectedWorkoutsView();
+      });
+      
+      // Event listener for "Back" button
+      backToRecommendBtn.addEventListener('click', function() {
+        myProgramSection.style.display = 'none';
+        document.querySelector('.container').style.display = 'block';
+      });
+    
+      // BMI calculator
+      const calculateBmiBtn = document.getElementById('calculateBmiBtn');
+      const ageInput = document.getElementById('age');
+      const heightInput = document.getElementById('height');
+      const weightInput = document.getElementById('weight');
+      const bmiResult = document.getElementById('bmiResult');
+
+      // Event listener for BMI calculation button
+      calculateBmiBtn.addEventListener('click', function() {
+        const age = parseInt(ageInput.value);
+        const height = parseInt(heightInput.value);
+        const weight = parseInt(weightInput.value);
+        
+        // Validate input
+        if (!age || age < 12 || age > 100) {
+          alert('Umur harus diisi dengan nilai antara 12 dan 100 tahun');
+          return;
+        }
+        
+        if (!height || height < 100 || height > 250) {
+          alert('Tinggi badan harus diisi dengan nilai antara 100 dan 250 cm');
+          return;
+        }
+        
+        if (!weight || weight < 30 || weight > 300) {
+          alert('Berat badan harus diisi dengan nilai antara 30 dan 300 kg');
+          return;
+        }
+        
+        // Calculate BMI
+        const heightInMeter = height / 100;
+        const bmi = weight / (heightInMeter * heightInMeter);
+        const roundedBmi = bmi.toFixed(1);
+        
+        // Determine BMI category
+        let category = '';
+        let categoryClass = '';
+        let recommendation = '';
+        
+        if (bmi < 18.5) {
+          category = 'Berat Badan Kurang';
+          categoryClass = 'category-underweight';
+          recommendation = 'Anda memiliki berat badan kurang. Disarankan untuk menambah asupan kalori dan protein, serta fokus pada latihan kekuatan untuk membangun massa otot.';
+        } else if (bmi >= 18.5 && bmi < 25) {
+          category = 'Berat Badan Normal';
+          categoryClass = 'category-normal';
+          recommendation = 'Selamat! Berat badan Anda berada dalam kategori normal. Lanjutkan gaya hidup sehat dengan latihan rutin dan pola makan seimbang.';
+        } else if (bmi >= 25 && bmi < 30) {
+          category = 'Berat Badan Berlebih';
+          categoryClass = 'category-overweight';
+          recommendation = 'Anda memiliki berat badan berlebih. Disarankan untuk meningkatkan aktivitas fisik seperti latihan kardio dan mengurangi asupan kalori.';
+        } else {
+          category = 'Obesitas';
+          categoryClass = 'category-obese';
+          recommendation = 'Anda berada dalam kategori obesitas. Disarankan untuk berkonsultasi dengan dokter atau ahli gizi untuk program penurunan berat badan yang tepat. Mulailah dengan latihan kardio ringan dan pengaturan pola makan.';
+        }
+        
+        // Add calisthenics recommendations based on BMI
+        let workoutRecommendation = '<p><strong>Rekomendasi Latihan Calisthenics:</strong></p><ul>';
+        
+        if (bmi < 18.5) {
+          workoutRecommendation += `
+            <li>Push-ups (mulai dari kneeling push-ups)</li>
+            <li>Pull-ups dengan bantuan (assisted pull-ups)</li>
+            <li>Squat dasar</li>
+            <li>Plank (mulai dari 20-30 detik)</li>
+          `;
+        } else if (bmi >= 18.5 && bmi < 25) {
+          workoutRecommendation += `
+            <li>Push-ups standar</li>
+            <li>Pull-ups</li>
+            <li>Dips</li>
+            <li>Lunges</li>
+            <li>Plank (45-60 detik)</li>
+          `;
+        } else if (bmi >= 25 && bmi < 30) {
+          workoutRecommendation += `
+            <li>Jogging atau lari interval</li>
+            <li>Mountain climbers</li>
+            <li>Jumping jacks</li>
+            <li>Burpees (modifikasi jika perlu)</li>
+            <li>Squats</li>
+          `;
+        } else {
+          workoutRecommendation += `
+            <li>Jalan cepat (Brisk Walking)</li>
+            <li>Modified push-ups (dinding atau lutut)</li>
+            <li>Chair squats</li>
+            <li>Seated leg raises</li>
+            <li>Modified planks</li>
+          `;
+        }
+        
+        workoutRecommendation += '</ul>';
+        
+        // Display results
+        bmiResult.querySelector('.bmi-value').textContent = 'BMI: ' + roundedBmi;
+        bmiResult.querySelector('.bmi-category').textContent = 'Kategori: ' + category;
+        bmiResult.querySelector('.bmi-category').className = 'bmi-category ' + categoryClass;
+        bmiResult.querySelector('.bmi-recommendation').innerHTML = recommendation + workoutRecommendation;
+        
+        // Display result div
+        bmiResult.style.display = 'block';
+        
+        // Save BMI data to server (optional)
+        saveBmiData(age, height, weight, roundedBmi, category);
+      });
+
+      // Function to save BMI data to server (optional)
+      async function saveBmiData(age, height, weight, bmi, category) {
+        try {
+          const response = await fetch('/save-bmi', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ age, height, weight, bmi, category }),
+          });
+          
+          const data = await response.json();
+          console.log('BMI data saved:', data);
+        } catch (error) {
+          console.error('Error saving BMI data:', error);
+        }
+      }
+    });
+  </script>
+</body>
+</html>
